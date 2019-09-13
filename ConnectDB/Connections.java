@@ -51,6 +51,7 @@ public class Connections {
                         + "idTrader INT(11),"
                         + "idStock INT(11),"
                         + "AmountStocks LONG,"
+                        + "price INT(25),"
                         + "FOREIGN KEY (idTrader) REFERENCES Trader(idTrader),"
                         + "FOREIGN KEY (idStock) REFERENCES Stock(idStock))ENGINE=InnoDB DEFAULT CHARSET=utf8;";
                 String sqlBuy = "CREATE TABLE IF NOT EXISTS Buy(idBuy INT(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,"

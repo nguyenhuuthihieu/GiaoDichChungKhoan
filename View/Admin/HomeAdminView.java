@@ -65,6 +65,7 @@ public class HomeAdminView extends javax.swing.JFrame {
         sellTitle.add("Cổ phiếu");
         sellTitle.add("Số lượng");
         sellTitle.add("Giá bán");
+        buySellTitle.add("Mã");
         buySellTitle.add("Người chơi");
         buySellTitle.add("Cổ phiếu");
         buySellTitle.add("Số Lượng");
@@ -103,15 +104,34 @@ public class HomeAdminView extends javax.swing.JFrame {
             Trader trader1 = traderDAO.getTrader(t.getIdTrader());
             Stock stock = stockDAO.getStock(t.getIdStock());
             Vector s = new Vector();
+            s.add(trader1.getIdTrader());
             s.add(trader1.getName());
             s.add(stock.getName());
             s.add(t.getNumberStock());
             s.add(t.getCost());
             buySellRecords.add(s);
         }
-        buyModel = new DefaultTableModel(buyRecords, buyTitle);
-        sellModel = new DefaultTableModel(sellRecords, sellTitle);
-        buySellModel = new DefaultTableModel(buySellRecords, buySellTitle);
+        buyModel = new DefaultTableModel(buyRecords, buyTitle){
+            @Override
+            public boolean isCellEditable(int row, int column) {
+               //all cells false
+               return false;
+            }
+        };
+        sellModel = new DefaultTableModel(sellRecords, sellTitle){
+            @Override
+            public boolean isCellEditable(int row, int column) {
+               //all cells false
+               return false;
+            }
+        };
+        buySellModel = new DefaultTableModel(buySellRecords, buySellTitle){
+            @Override
+            public boolean isCellEditable(int row, int column) {
+               //all cells false
+               return false;
+            }
+        };
         tbl_Buy.setModel(buyModel);
         tbl_Sell.setModel(sellModel);
         tbl_trader.setModel(buySellModel);
@@ -210,16 +230,14 @@ public class HomeAdminView extends javax.swing.JFrame {
             Class[] types = new Class [] {
                 java.lang.String.class, java.lang.String.class, java.lang.Integer.class, java.lang.Long.class
             };
-            boolean[] canEdit = new boolean [] {
-                false, false, true, false
-            };
 
             public Class getColumnClass(int columnIndex) {
                 return types [columnIndex];
             }
-
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
+        });
+        tbl_trader.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tbl_traderMouseClicked(evt);
             }
         });
         jScrollPane3.setViewportView(tbl_trader);
@@ -347,6 +365,14 @@ public class HomeAdminView extends javax.swing.JFrame {
         new LoginView().show();
         this.setVisible(false);
     }//GEN-LAST:event_btn_logoutActionPerformed
+
+    private void tbl_traderMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tbl_traderMouseClicked
+        int item = tbl_trader.getSelectedRow();
+        TraderDAO traderDAO = new TraderDAO();
+        Trader trader = traderDAO.getTrader(tradeOrders.get(item).getIdTrader());
+        new TraderHomeView(trader).show();
+        this.setVisible(false);
+    }//GEN-LAST:event_tbl_traderMouseClicked
 
     /**
      * @param args the command line arguments

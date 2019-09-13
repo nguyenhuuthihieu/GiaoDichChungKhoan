@@ -113,9 +113,27 @@ public class TradeOrderView extends javax.swing.JFrame {
             s.add(t.getCost());
             buySellRecords.add(s);
         }
-        buyModel = new DefaultTableModel(buyRecords, buyTitle);
-        sellModel = new DefaultTableModel(sellRecords, sellTitle);
-        buySellModel = new DefaultTableModel(buySellRecords, buySellTitle);
+        buyModel = new DefaultTableModel(buyRecords, buyTitle){
+            @Override
+            public boolean isCellEditable(int row, int column) {
+               //all cells false
+               return false;
+            }
+        };
+        sellModel = new DefaultTableModel(sellRecords, sellTitle){
+            @Override
+            public boolean isCellEditable(int row, int column) {
+               //all cells false
+               return false;
+            }
+        };
+        buySellModel = new DefaultTableModel(buySellRecords, buySellTitle){
+            @Override
+            public boolean isCellEditable(int row, int column) {
+               //all cells false
+               return false;
+            }
+        };
         tbl_buy.setModel(buyModel);
         tbl_sell.setModel(sellModel);
         tbl_buySell.setModel(buySellModel);
