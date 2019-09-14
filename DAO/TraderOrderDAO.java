@@ -42,6 +42,28 @@ public class TraderOrderDAO {
         }
         return tradeOrder;
     }
+    public ArrayList<TradeOrder> getTraderOrderByIdTrader(int idTrader){
+        Connection connection = Connections.getMysqlConnection();
+        String sql = "SELECT * FROM Trader_Stocks WHERE idTrader = " + idTrader ;
+        ArrayList<TradeOrder> list = new ArrayList<>();
+        if(connection != null){
+            try {
+                Statement st = connection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+                ResultSet rs = st.executeQuery(sql);
+                while(rs.next()){
+                    TradeOrder tradeOrder = new TradeOrder(rs.getInt("idTrader"),
+                            rs.getInt("idStock"),0,
+                            rs.getInt("AmountStocks"));
+                            rs.getInt("price");
+                    list.add(tradeOrder);
+                }
+                connection.close();
+            } catch (SQLException ex) {
+                System.out.println("SQLException: " + ex.getMessage());
+            }
+        }
+        return list;
+    }
     public void deleteTraderStock(TradeOrder t){
         Connection connection = Connections.getMysqlConnection();
         String sql = "DELETE FROM Trader_Stocks WHERE idTrader = " + t.getIdTrader() + " AND idStock = " + t.getIdStock();

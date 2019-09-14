@@ -370,7 +370,7 @@ public class HomeAdminView extends javax.swing.JFrame {
         int item = tbl_trader.getSelectedRow();
         TraderDAO traderDAO = new TraderDAO();
         Trader trader = traderDAO.getTrader(tradeOrders.get(item).getIdTrader());
-        new TraderHomeView(trader).show();
+        new TraderHomeView(trader, this.trader).show();
         this.setVisible(false);
     }//GEN-LAST:event_tbl_traderMouseClicked
 

@@ -123,52 +123,62 @@ public class SellBuyService {
         TradeOrder tmpB = null;
         TradeOrder tmpS = null;
         while(!sellStock.isEmpty() && !buyStock.isEmpty() ){
-            tmpB = buyStock.get(buyStock.size()-1);
-            tmpS = sellStock.get(sellStock.size()-1);
+            tmpB = buyStock.get(0);
+            tmpS = sellStock.get(0);
             TradeOrder tradeOrderBuy = traderOrderDAO.getTraderOrder(tmpB.getIdTrader(), tmpB.getIdStock());
             TradeOrder tradeOrderSell = traderOrderDAO.getTraderOrder(tmpS.getIdTrader(), tmpS.getIdStock());
             Trader traderBuy = traderDAO.getTrader(tmpB.getIdTrader());
             Trader traderSell = traderDAO.getTrader(tmpS.getIdTrader());  
             if(tmpB.getIdStock() == tmpS.getIdStock()){
-                if(tmpB.getCost() > tmpS.getCost()){
+                if(tmpB.getCost() >= tmpS.getCost()){
                     if(tmpB.getNumberStock() > tmpS.getNumberStock()){
                         long moneyB = traderBuy.getMoney();
                         long moneyS = traderSell.getMoney();
-                        int tmp = buyStock.get(buyStock.size() -1).getNumberStock();
+                        int tmp = buyStock.get(0).getNumberStock();
                         traderBuy.setMoney(moneyB - tmpS.getCost()*tmpS.getNumberStock());
                         traderSell.setMoney(moneyS + tmpS.getCost()*tmpS.getNumberStock());
-                        if(tradeOrderBuy!= null)
-                            tradeOrderBuy.setNumberStock(tradeOrderBuy.getNumberStock() + tmpS.getNumberStock());
-                        else tradeOrderBuy= new TradeOrder(tmpB.getIdTrader(), tmpB.getIdStock(), tmpS.getCost(), tmpS.getNumberStock());
-                        tradeOrderSell.setNumberStock(tradeOrderSell.getNumberStock() - tmpS.getNumberStock());
-                        buyStock.get(buyStock.size() -1).setNumberStock(tmp - tmpS.getNumberStock());
-                        sellStock.remove(sellStock.size() -1);
+                        if(tradeOrderBuy!= null){
+                            int stocks = tradeOrderBuy.getNumberStock();
+                            tradeOrderBuy.setNumberStock(stocks + tmpS.getNumberStock());
+                            tradeOrderBuy.setCost(tmpS.getCost());
+                        }else tradeOrderBuy= new TradeOrder(tmpB.getIdTrader(), tmpB.getIdStock(), tmpS.getCost(), tmpS.getNumberStock());
+                        int stocksell = tradeOrderSell.getNumberStock();
+                        tradeOrderSell.setNumberStock(stocksell- tmpS.getNumberStock());
+                        tradeOrderSell.setCost(tmpS.getCost());
+                        buyStock.get(0).setNumberStock(tmp - tmpS.getNumberStock());
+                        sellStock.remove(0);
                     } else if( tmpB.getNumberStock() < tmpS.getNumberStock()){
-                        int tmp = sellStock.get(sellStock.size() -1).getNumberStock();
+                        int tmp = sellStock.get(0).getNumberStock();
                         int numberS = tmpS.getNumberStock();
                         int numberB = tmpB.getNumberStock();
                         long moneyB = traderBuy.getMoney();
                         long moneyS = traderSell.getMoney();
                         traderBuy.setMoney(moneyB - tmpS.getCost()*numberB);
                         traderSell.setMoney(moneyS + tmpS.getCost()*numberB);
-                        if(tradeOrderBuy!= null)
-                            tradeOrderBuy.setNumberStock(tradeOrderBuy.getNumberStock() + tmpB.getNumberStock());
-                        else tradeOrderBuy= new TradeOrder(tmpB.getIdTrader(), tmpB.getIdStock(), tmpS.getCost(), tmpB.getNumberStock());
-                        tradeOrderSell.setNumberStock(tradeOrderSell.getNumberStock() - tmpB.getNumberStock());
-                        sellStock.get(sellStock.size() -1).setNumberStock(tmp - tmpB.getNumberStock());
-                        buyStock.remove(buyStock.size() -1);
+                        if(tradeOrderBuy!= null){
+                            int stockbuy = tradeOrderBuy.getNumberStock();
+                            tradeOrderBuy.setNumberStock(stockbuy + tmpB.getNumberStock());
+                            tradeOrderBuy.setCost(tmpS.getCost());
+                        }else tradeOrderBuy= new TradeOrder(tmpB.getIdTrader(), tmpB.getIdStock(), tmpS.getCost(), tmpB.getNumberStock());
+                        int stocksell = tradeOrderSell.getNumberStock();
+                        tradeOrderSell.setNumberStock(stocksell- tmpB.getNumberStock());
+                        tradeOrderSell.setCost(tmpS.getCost());
+                        sellStock.get(0).setNumberStock(tmp - tmpB.getNumberStock());
+                        buyStock.remove(0);
                     } else {
                         int numberS = tmpS.getNumberStock();
                         long moneyB = traderBuy.getMoney();
                         long moneyS = traderSell.getMoney();
                         traderBuy.setMoney(moneyB - tmpS.getCost()*tmpB.getNumberStock());
                         traderSell.setMoney(moneyS + tmpS.getCost()*tmpB.getNumberStock());
-                        if(tradeOrderBuy!= null)
-                            tradeOrderBuy.setNumberStock(tradeOrderBuy.getNumberStock() + tmpS.getNumberStock());
-                        else tradeOrderBuy= new TradeOrder(tmpB.getIdTrader(), tmpB.getIdStock(), tmpS.getCost(), tmpS.getNumberStock());
+                        if(tradeOrderBuy!= null){
+                            int stockbuy = tradeOrderBuy.getNumberStock();
+                            tradeOrderBuy.setNumberStock(stockbuy + tmpS.getNumberStock());
+                            tradeOrderBuy.setCost(tmpS.getCost());
+                        }else tradeOrderBuy= new TradeOrder(tmpB.getIdTrader(), tmpB.getIdStock(), tmpS.getCost(), tmpS.getNumberStock());
                         tradeOrderSell.setNumberStock(0);
-                        buyStock.remove(buyStock.size()-1);
-                        sellStock.remove(sellStock.size() -1);
+                        buyStock.remove(0);
+                        sellStock.remove(0);
                     }
                     traderDAO.updateTrader(traderSell);
                     traderDAO.updateTrader(traderBuy);
@@ -176,23 +186,24 @@ public class SellBuyService {
                     traderDAO.updateTrader_Stock(tradeOrderBuy);
                 } else if(tmpB.getCost() < tmpS.getCost()){
                     sellFake.add(tmpS);
-                    sellStock.remove(sellStock.size() -1);
+                    sellStock.remove(0);
                     buyFake.add(tmpB);
-                    buyStock.remove(buyStock.size()-1);
-                } else {
-                    sellStock.remove(sellStock.size() -1);
-                    buyStock.remove(buyStock.size()-1);
+                    buyStock.remove(0);
                 }
+//                } else {
+//                    sellStock.remove(0);
+//                    buyStock.remove(0);
+//                }
             } else if(tmpB.getIdStock() > tmpS.getIdStock()){
                 sellFake.add(tmpS);
-                sellStock.remove(sellStock.size() -1);
+                sellStock.remove(0);
             } else {
                 buyFake.add(tmpB);
-                buyStock.remove(buyStock.size()-1);
+                buyStock.remove(0);
             }
         }
         BuySellDAO buySellDAO = new BuySellDAO();
-        buySellDAO.updateTableBuy(sellFake);
+        buySellDAO.updateTableBuy(buyFake);
         buySellDAO.updateTableSell(sellFake);
         sell = sellFake;
         buy = buyFake;
