@@ -190,10 +190,6 @@ public class SellBuyService {
                     buyFake.add(tmpB);
                     buyStock.remove(0);
                 }
-//                } else {
-//                    sellStock.remove(0);
-//                    buyStock.remove(0);
-//                }
             } else if(tmpB.getIdStock() > tmpS.getIdStock()){
                 sellFake.add(tmpS);
                 sellStock.remove(0);
@@ -202,6 +198,8 @@ public class SellBuyService {
                 buyStock.remove(0);
             }
         }
+        buyFake.addAll(buyStock);
+        sellFake.addAll(sellStock);
         BuySellDAO buySellDAO = new BuySellDAO();
         buySellDAO.updateTableBuy(buyFake);
         buySellDAO.updateTableSell(sellFake);
