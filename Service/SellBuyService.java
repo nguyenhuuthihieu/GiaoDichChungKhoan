@@ -24,7 +24,7 @@ import java.util.logging.Logger;
  *
  * @author NguyenHieu
  */
-public class SellBuyService {
+public class SellBuyService extends Thread{
     PriorityQueue<TradeOrder> buy = new PriorityQueue<TradeOrder>(new Comparator<TradeOrder>(){
         @Override
         public int compare(TradeOrder o1, TradeOrder o2) {
@@ -207,77 +207,89 @@ public class SellBuyService {
         buy = buyFake;
         
     }
-    public void sell_buy(){
-        TraderDAO traderDAO = new TraderDAO();
-        TraderOrderDAO traderOrderDAO = new TraderOrderDAO();
-        TradeOrder tmpB = null;
-        TradeOrder tmpS = null;
-        
-        while(!buy.isEmpty() && !sell.isEmpty()|| (tmpB!=null &&  !sell.isEmpty()) || (tmpS!=null &&  !buy.isEmpty()) ){
-            if(tmpB == null) {
-                tmpB = buy.remove();
-            }
-            if(tmpS == null){
-                tmpS = sell.remove();
-            }
-            if(tmpB.getCost() >= tmpS.getCost() ){
-                TradeOrder B = traderOrderDAO.getTraderOrder(tmpB.getIdTrader(), tmpB.getIdStock());
-                TradeOrder S = traderOrderDAO.getTraderOrder(tmpS.getIdTrader(), tmpS.getIdStock());
-                Trader traderB = traderDAO.getTrader(tmpB.getIdTrader());
-                Trader traderS = traderDAO.getTrader(tmpS.getIdTrader());
-                if(tmpB.getNumberStock() > tmpS.getNumberStock()){
-                    int numberB = tmpB.getNumberStock();
-                    long moneyB = traderB.getMoney();
-                    long moneyS = traderS.getMoney();
-                    traderB.setMoney(moneyB - tmpS.getCost()*tmpS.getNumberStock());
-                    traderS.setMoney(moneyS + tmpS.getCost()*tmpS.getNumberStock());
-                    if(B!= null)
-                        B.setNumberStock(B.getNumberStock() + tmpS.getNumberStock());
-                    else B= new TradeOrder(tmpB.getIdTrader(), tmpB.getIdStock(), tmpS.getCost(), tmpS.getNumberStock());
-                    S.setNumberStock(S.getNumberStock() - tmpS.getNumberStock());
-                    tmpB.setNumberStock(numberB - tmpS.getNumberStock());
-                    tmpS = null;
-                } else if(tmpB.getNumberStock() < tmpS.getNumberStock()){
-                    int numberS = tmpS.getNumberStock();
-                    int numberB = tmpB.getNumberStock();
-                    long moneyB = traderB.getMoney();
-                    long moneyS = traderS.getMoney();
-                    traderB.setMoney(moneyB - tmpS.getCost()*numberB);
-                    traderS.setMoney(moneyS + tmpS.getCost()*numberB);
-                    if(B!= null)
-                        B.setNumberStock(B.getNumberStock() + tmpB.getNumberStock());
-                    else B= new TradeOrder(tmpB.getIdTrader(), tmpB.getIdStock(), tmpS.getCost(), tmpB.getNumberStock());
-                    S.setNumberStock(S.getNumberStock() - tmpB.getNumberStock());
-                    tmpS.setNumberStock(numberS - tmpB.getNumberStock());
-                    tmpB = null;
-                } else {
-                    int numberS = tmpS.getNumberStock();
-                    long moneyB = traderB.getMoney();
-                    long moneyS = traderS.getMoney();
-                    traderB.setMoney(moneyB - tmpS.getCost()*tmpB.getNumberStock());
-                    traderS.setMoney(moneyS + tmpS.getCost()*tmpB.getNumberStock());
-                    if(B!= null)
-                        B.setNumberStock(B.getNumberStock() + tmpS.getNumberStock());
-                    else B= new TradeOrder(tmpB.getIdTrader(), tmpB.getIdStock(), tmpS.getCost(), tmpS.getNumberStock());
-                    S.setNumberStock(0);
-                    tmpS = null;
-                    tmpB = null;
-                }
-                traderDAO.updateTrader(traderS);
-                traderDAO.updateTrader(traderB);
-                traderDAO.updateTrader_Stock(S);
-                traderDAO.updateTrader_Stock(B);
-            }
-            else return;
-        }
-        if(tmpS != null) sell.add(tmpS);
-        if(tmpB != null) buy.add(tmpB);
-    }
+//    public void sell_buy(){
+//        TraderDAO traderDAO = new TraderDAO();
+//        TraderOrderDAO traderOrderDAO = new TraderOrderDAO();
+//        TradeOrder tmpB = null;
+//        TradeOrder tmpS = null;
+//        
+//        while(!buy.isEmpty() && !sell.isEmpty()|| (tmpB!=null &&  !sell.isEmpty()) || (tmpS!=null &&  !buy.isEmpty()) ){
+//            if(tmpB == null) {
+//                tmpB = buy.remove();
+//            }
+//            if(tmpS == null){
+//                tmpS = sell.remove();
+//            }
+//            if(tmpB.getCost() >= tmpS.getCost() ){
+//                TradeOrder B = traderOrderDAO.getTraderOrder(tmpB.getIdTrader(), tmpB.getIdStock());
+//                TradeOrder S = traderOrderDAO.getTraderOrder(tmpS.getIdTrader(), tmpS.getIdStock());
+//                Trader traderB = traderDAO.getTrader(tmpB.getIdTrader());
+//                Trader traderS = traderDAO.getTrader(tmpS.getIdTrader());
+//                if(tmpB.getNumberStock() > tmpS.getNumberStock()){
+//                    int numberB = tmpB.getNumberStock();
+//                    long moneyB = traderB.getMoney();
+//                    long moneyS = traderS.getMoney();
+//                    traderB.setMoney(moneyB - tmpS.getCost()*tmpS.getNumberStock());
+//                    traderS.setMoney(moneyS + tmpS.getCost()*tmpS.getNumberStock());
+//                    if(B!= null)
+//                        B.setNumberStock(B.getNumberStock() + tmpS.getNumberStock());
+//                    else B= new TradeOrder(tmpB.getIdTrader(), tmpB.getIdStock(), tmpS.getCost(), tmpS.getNumberStock());
+//                    S.setNumberStock(S.getNumberStock() - tmpS.getNumberStock());
+//                    tmpB.setNumberStock(numberB - tmpS.getNumberStock());
+//                    tmpS = null;
+//                } else if(tmpB.getNumberStock() < tmpS.getNumberStock()){
+//                    int numberS = tmpS.getNumberStock();
+//                    int numberB = tmpB.getNumberStock();
+//                    long moneyB = traderB.getMoney();
+//                    long moneyS = traderS.getMoney();
+//                    traderB.setMoney(moneyB - tmpS.getCost()*numberB);
+//                    traderS.setMoney(moneyS + tmpS.getCost()*numberB);
+//                    if(B!= null)
+//                        B.setNumberStock(B.getNumberStock() + tmpB.getNumberStock());
+//                    else B= new TradeOrder(tmpB.getIdTrader(), tmpB.getIdStock(), tmpS.getCost(), tmpB.getNumberStock());
+//                    S.setNumberStock(S.getNumberStock() - tmpB.getNumberStock());
+//                    tmpS.setNumberStock(numberS - tmpB.getNumberStock());
+//                    tmpB = null;
+//                } else {
+//                    int numberS = tmpS.getNumberStock();
+//                    long moneyB = traderB.getMoney();
+//                    long moneyS = traderS.getMoney();
+//                    traderB.setMoney(moneyB - tmpS.getCost()*tmpB.getNumberStock());
+//                    traderS.setMoney(moneyS + tmpS.getCost()*tmpB.getNumberStock());
+//                    if(B!= null)
+//                        B.setNumberStock(B.getNumberStock() + tmpS.getNumberStock());
+//                    else B= new TradeOrder(tmpB.getIdTrader(), tmpB.getIdStock(), tmpS.getCost(), tmpS.getNumberStock());
+//                    S.setNumberStock(0);
+//                    tmpS = null;
+//                    tmpB = null;
+//                }
+//                traderDAO.updateTrader(traderS);
+//                traderDAO.updateTrader(traderB);
+//                traderDAO.updateTrader_Stock(S);
+//                traderDAO.updateTrader_Stock(B);
+//            }
+//            else return;
+//        }
+//        if(tmpS != null) sell.add(tmpS);
+//        if(tmpB != null) buy.add(tmpB);
+//    }
     public void integratedSB(){
         while(true){
             try {
                 Thread.sleep(300000);
                 sellBuy();
+            } catch (InterruptedException ex) {
+                System.out.println("InterruptedException: " + ex.getMessage());
+            }
+        }
+    }
+    public void run(){
+        while(true){
+            System.out.println("Khớp lệnh");
+            try {
+                Thread.sleep(300000);
+                SellBuyService sb = new SellBuyService();
+                sb.sellBuy();
             } catch (InterruptedException ex) {
                 System.out.println("InterruptedException: " + ex.getMessage());
             }
